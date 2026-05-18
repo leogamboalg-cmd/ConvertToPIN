@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Instant PIN Converter</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        max-width: 600px;
+        margin: 40px auto;
+        padding: 20px;
+      }
+      textarea {
+        width: 100%;
+        height: 150px;
+        margin-bottom: 150px;
+        box-sizing: border-box;
+      }
+      .box {
+        margin-bottom: 20px;
+      }
+      button {
+        padding: 10px 20px;
+        background: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      button:hover {
+        background: #0056b3;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>🔢 Bulk PIN Converter</h2>
+    <p>
+      Paste your raw numbers below (one per line) to instantly get 4-digit PINs.
+    </p>
+
+    <div class="box">
+      <label><b>Input Numbers:</b></label>
+      <textarea id="inputBox" placeholder="16947905&#10;18828147"></textarea>
+    </div>
+
+    <button onclick="convertNumbers()">Convert to PINs</button>
+
+    <div class="box" style="margin-top: 30px">
+      <label><b>Generated PINs:</b></label>
+      <textarea id="outputBox" readonly></textarea>
+    </div>
+
+    <script>
+      function convertNumbers() {
+        // 1. Grab the text from the input textarea
+        const rawText = document.getElementById("inputBox").value;
+
+        // 2. Split the text into an array by line breaks
+        const lines = rawText.split("\n");
+
+        const pins = [];
+
+        // 3. Process each line exactly like the Python script
+        for (let line of lines) {
+          let cleanLine = line.trim();
+
+          // Check if the line is a valid number
+          if (cleanLine !== "" && !isNaN(cleanLine)) {
+            // Get the remainder when dividing by 10000 (last 4 digits)
+            let pinNum = Number(cleanLine) % 10000;
+
+            // Pad with leading zeros to ensure it is always 4 characters long
+            let formattedPin = String(pinNum).padStart(4, "0");
+
+            pins.push(formattedPin);
+          }
+        }
+
+        // 4. Output the array back into the results textbox joined by newlines
+        document.getElementById("outputBox").value = pins.join("\n");
+      }
+    </script>
+  </body>
+</html>
