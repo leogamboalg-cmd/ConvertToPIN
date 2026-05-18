@@ -4,80 +4,246 @@
     <meta charset="UTF-8" />
     <title>Instant PIN Converter</title>
     <style>
+      /* Modern Reset & Dark Theme */
       body {
-        font-family: sans-serif;
-        max-width: 600px;
-        margin: 40px auto;
-        padding: 20px;
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+          Arial, sans-serif;
+        max-width: 650px;
+        margin: 50px auto;
+        padding: 30px;
+        background-color: #0f172a;
+        color: #f8fafc;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
       }
-      textarea {
-        width: 100%;
-        height: 150px;
-        margin-bottom: 150px;
-        box-sizing: border-box;
+
+      h2 {
+        color: #38bdf8;
+        margin-top: 0;
+        margin-bottom: 8px;
+        font-size: 1.8rem;
       }
+
+      p {
+        color: #94a3b8;
+        margin-bottom: 25px;
+        font-size: 0.95rem;
+        line-height: 1.5;
+      }
+
+      /* Box Layouts */
       .box {
         margin-bottom: 20px;
       }
-      button {
-        padding: 10px 20px;
-        background: #007bff;
+
+      .label-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+      }
+
+      label {
+        color: #cbd5e1;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: bold;
+      }
+
+      /* Textarea Upgrades */
+      textarea {
+        width: 100%;
+        height: 160px;
+        box-sizing: border-box;
+        padding: 12px;
+        background-color: #1e293b;
+        color: #f1f5f9;
+        border: 2px solid #334155;
+        border-radius: 8px;
+        font-family: "Courier New", Courier, monospace;
+        font-size: 1rem;
+        font-weight: bold;
+        resize: vertical;
+        transition: border-color 0.2s;
+      }
+
+      textarea:focus {
+        outline: none;
+        border-color: #f6f6f6;
+      }
+
+      textarea[readonly] {
+        background-color: #0f172a;
+        border-color: #1e293b;
+        color: #f9f9f9;
+      }
+
+      /* Action Row Layout */
+      .action-row {
+        display: flex;
+        gap: 12px;
+      }
+
+      /* Action Buttons */
+      button.primary-btn {
+        flex: 3;
+        padding: 14px;
+        background: linear-gradient(135deg, #0284c7, #0369a1);
         color: white;
         border: none;
-        border-radius: 4px;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
         cursor: pointer;
+        transition:
+          transform 0.1s,
+          box-shadow 0.2s;
+        box-shadow: 0 4px 12px rgba(2, 132, 199, 0.2);
       }
-      button:hover {
-        background: #0056b3;
+
+      button.primary-btn:hover {
+        background: linear-gradient(135deg, #0369a1, #075985);
+        box-shadow: 0 6px 16px rgba(2, 132, 199, 0.3);
+      }
+
+      /* Clear Button Styling */
+      button.clear-btn {
+        flex: 1;
+        padding: 14px;
+        background-color: #334155;
+        color: #f1f5f9;
+        border: 1px solid #475569;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      button.clear-btn:hover {
+        background-color: #ef4444;
+        border-color: #dc2626;
+        color: #fff;
+      }
+
+      button:active {
+        transform: scale(0.98);
+      }
+
+      /* Copy Button */
+      .copy-btn {
+        background-color: #334155;
+        color: #cbd5e1;
+        border: 1px solid #475569;
+        border-radius: 4px;
+        padding: 4px 10px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .copy-btn:hover {
+        background-color: #475569;
+        color: #fff;
+      }
+
+      .copy-btn.success {
+        background-color: #16a34a;
+        border-color: #15803d;
+        color: #fff;
       }
     </style>
   </head>
   <body>
     <h2>🔢 Bulk PIN Converter</h2>
     <p>
-      Paste your raw numbers below (one per line) to instantly get 4-digit PINs.
+      Paste your raw numbers below (one per line) to instantly extract the last
+      4 digits as a PIN.
     </p>
 
     <div class="box">
-      <label><b>Input Numbers:</b></label>
+      <div class="label-container">
+        <label>Input Numbers:</label>
+      </div>
       <textarea id="inputBox" placeholder="16947905&#10;18828147"></textarea>
     </div>
 
-    <button onclick="convertNumbers()">Convert to PINs</button>
+    <div class="action-row">
+      <button class="primary-btn" onclick="convertNumbers()">
+        Convert to PINs
+      </button>
+      <button class="clear-btn" onclick="clearFields()">Clear All</button>
+    </div>
 
-    <div class="box" style="margin-top: 30px">
-      <label><b>Generated PINs:</b></label>
-      <textarea id="outputBox" readonly></textarea>
+    <div class="box" style="margin-top: 25px">
+      <div class="label-container">
+        <label>Generated PINs:</label>
+        <button id="copyBtn" class="copy-btn" onclick="copyToClipboard()">
+          Copy PINs
+        </button>
+      </div>
+      <textarea
+        id="outputBox"
+        readonly
+        placeholder="Your 4-digit PINs will appear here..."
+      ></textarea>
     </div>
 
     <script>
       function convertNumbers() {
-        // 1. Grab the text from the input textarea
         const rawText = document.getElementById("inputBox").value;
-
-        // 2. Split the text into an array by line breaks
         const lines = rawText.split("\n");
-
         const pins = [];
 
-        // 3. Process each line exactly like the Python script
         for (let line of lines) {
           let cleanLine = line.trim();
 
-          // Check if the line is a valid number
           if (cleanLine !== "" && !isNaN(cleanLine)) {
-            // Get the remainder when dividing by 10000 (last 4 digits)
             let pinNum = Number(cleanLine) % 10000;
-
-            // Pad with leading zeros to ensure it is always 4 characters long
             let formattedPin = String(pinNum).padStart(4, "0");
-
             pins.push(formattedPin);
           }
         }
 
-        // 4. Output the array back into the results textbox joined by newlines
         document.getElementById("outputBox").value = pins.join("\n");
+        resetCopyButton();
+      }
+
+      function copyToClipboard() {
+        const outputBox = document.getElementById("outputBox");
+        const copyBtn = document.getElementById("copyBtn");
+
+        if (!outputBox.value.trim()) return;
+
+        navigator.clipboard
+          .writeText(outputBox.value)
+          .then(() => {
+            copyBtn.innerText = "✓ Copied!";
+            copyBtn.classList.add("success");
+
+            setTimeout(() => {
+              resetCopyButton();
+            }, 2000);
+          })
+          .catch((err) => {
+            console.error("Failed to copy text: ", err);
+          });
+      }
+
+      function clearFields() {
+        // Clear text areas
+        document.getElementById("inputBox").value = "";
+        document.getElementById("outputBox").value = "";
+        resetCopyButton();
+      }
+
+      function resetCopyButton() {
+        const copyBtn = document.getElementById("copyBtn");
+        copyBtn.innerText = "Copy PINs";
+        copyBtn.classList.remove("success");
       }
     </script>
   </body>
